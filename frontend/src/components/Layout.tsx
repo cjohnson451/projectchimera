@@ -10,6 +10,8 @@ import {
   X
 } from 'lucide-react'
 import { useState } from 'react'
+import { deleteAccount } from '../lib/api'
+import toast from 'react-hot-toast'
 
 interface LayoutProps {
   children: ReactNode
@@ -124,6 +126,22 @@ export default function Layout({ children }: LayoutProps) {
                 >
                   <LogOut size={16} />
                   Logout
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!window.confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+                    try {
+                      await deleteAccount();
+                      toast.success('Account deleted');
+                      logout();
+                      window.location.href = '/login';
+                    } catch (err) {
+                      toast.error('Failed to delete account');
+                    }
+                  }}
+                  className="flex items-center gap-x-2 text-sm text-danger-700 hover:text-danger-900 border border-danger-300 rounded px-2 py-1 ml-2"
+                >
+                  Delete Account
                 </button>
               </div>
             </div>

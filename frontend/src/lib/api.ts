@@ -16,14 +16,28 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle auth errors
+// Handle auth errors - don't auto-redirect, let components handle it
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only log the error, don't auto-redirect
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+      console.log('Unauthorized request - token may be invalid')
+      // Don't automatically remove token or redirect
+      // Let the useAuth hook handle token validation
     }
     return Promise.reject(error)
   }
-) 
+)
+
+export async function deleteMemo(memoId: number) {
+  return api.delete(`/memos/${memoId}`)
+}
+
+export async function cleanupPendingMemos() {
+  return api.post('/memos/cleanup-pending')
+}
+
+export async function deleteAccount() {
+  return api.post('/auth/delete-account')
+} 

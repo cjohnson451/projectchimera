@@ -20,7 +20,11 @@ Your analysis should be:
 - Professional and authoritative in tone
 - Focused on the big picture
 
-You must provide a clear recommendation: Buy, Sell, or Hold, with confidence level."""
+You must provide a clear recommendation: Buy, Sell, or Hold, with confidence level.
+
+IMPORTANT: At the end of your response, include a line in the following format (machine-readable):
+Confidence: XX% (where XX is your confidence as a percentage, e.g., 80%)
+"""
 
     def analyze(self, data: Dict[str, Any]) -> str:
         fundamental_analysis = data.get('fundamental_analysis', 'No fundamental analysis available')

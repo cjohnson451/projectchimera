@@ -22,6 +22,37 @@ Your analysis should be:
 
 Focus on sentiment trends, key news events, and their potential impact on stock performance."""
 
+    def _format_data_for_analysis(self, data: Dict[str, Any]) -> str:
+        # Custom formatting to include links for news and tweets
+        lines = []
+        if 'sentiment_score' in data:
+            lines.append(f"Sentiment Score: {data['sentiment_score']:.2f}")
+        if 'positive_news' in data and 'negative_news' in data and 'neutral_news' in data:
+            lines.append(f"News Breakdown: {data['positive_news']} positive, {data['negative_news']} negative, {data['neutral_news']} neutral")
+        if 'news_summaries' in data and data['news_summaries']:
+            lines.append("Recent News:")
+            for item in data['news_summaries']:
+                headline = item.get('headline', 'News')
+                url = item.get('url', '')
+                if url:
+                    lines.append(f"- {headline} ([source]({url}))")
+                else:
+                    lines.append(f"- {headline}")
+        if 'social_sentiment' in data and data['social_sentiment']:
+            lines.append("Recent Social Posts:")
+            for post in data['social_sentiment']:
+                text = post.get('text', 'Post')
+                url = post.get('url', '')
+                if url:
+                    lines.append(f"- {text[:80]}... ([source]({url}))")
+                else:
+                    lines.append(f"- {text[:80]}...")
+        # Add any other fields as fallback
+        for key, value in data.items():
+            if key not in ['sentiment_score', 'positive_news', 'negative_news', 'neutral_news', 'news_summaries', 'social_sentiment', 'ticker']:
+                lines.append(f"{key}: {value}")
+        return "\n".join(lines)
+
     def analyze(self, data: Dict[str, Any]) -> str:
         formatted_data = self._format_data_for_analysis(data)
         

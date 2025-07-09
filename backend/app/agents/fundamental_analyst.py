@@ -22,6 +22,68 @@ Your analysis should be:
 
 Focus on key metrics like P/E ratio, revenue growth, profitability, and financial health indicators."""
 
+    def _format_data_for_analysis(self, data: Dict[str, Any]) -> str:
+        lines = []
+        # Key ratios and metrics
+        if 'pe_ratio' in data:
+            lines.append(f"P/E Ratio: {data['pe_ratio']}")
+        if 'pb_ratio' in data:
+            lines.append(f"P/B Ratio: {data['pb_ratio']}")
+        if 'market_cap' in data:
+            lines.append(f"Market Cap: {data['market_cap']}")
+        if 'revenue' in data:
+            lines.append(f"Revenue (TTM): {data['revenue']}")
+        if 'net_income' in data:
+            lines.append(f"Net Income (TTM): {data['net_income']}")
+        if 'eps' in data:
+            lines.append(f"EPS (TTM): {data['eps']}")
+        if 'quarterly_eps' in data:
+            lines.append(f"Quarterly EPS: {data['quarterly_eps']}")
+        if 'quarterly_revenue' in data:
+            lines.append(f"Quarterly Revenue: {data['quarterly_revenue']}")
+        if 'debt_to_equity' in data:
+            lines.append(f"Debt/Equity: {data['debt_to_equity']}")
+        if 'current_ratio' in data:
+            lines.append(f"Current Ratio: {data['current_ratio']}")
+        if 'profit_margin' in data:
+            lines.append(f"Profit Margin: {data['profit_margin']}")
+        if 'roe' in data:
+            lines.append(f"ROE: {data['roe']}")
+        if 'roa' in data:
+            lines.append(f"ROA: {data['roa']}")
+        # Analyst estimates and guidance
+        if 'analyst_buy' in data or 'analyst_hold' in data or 'analyst_sell' in data:
+            lines.append("Analyst Recommendations:")
+            if 'analyst_buy' in data:
+                lines.append(f"- Buy: {data['analyst_buy']}")
+            if 'analyst_hold' in data:
+                lines.append(f"- Hold: {data['analyst_hold']}")
+            if 'analyst_sell' in data:
+                lines.append(f"- Sell: {data['analyst_sell']}")
+            if 'analyst_strong_buy' in data:
+                lines.append(f"- Strong Buy: {data['analyst_strong_buy']}")
+            if 'analyst_strong_sell' in data:
+                lines.append(f"- Strong Sell: {data['analyst_strong_sell']}")
+            if 'analyst_period' in data:
+                lines.append(f"- Period: {data['analyst_period']}")
+        if 'eps_estimate' in data or 'revenue_estimate' in data:
+            lines.append("Company Guidance/Estimates:")
+            if 'eps_estimate' in data:
+                lines.append(f"- EPS Estimate: {data['eps_estimate']}")
+            if 'revenue_estimate' in data:
+                lines.append(f"- Revenue Estimate: {data['revenue_estimate']}")
+            if 'guidance_period' in data:
+                lines.append(f"- Period: {data['guidance_period']}")
+        # Fallback for any other fields
+        for key, value in data.items():
+            if key not in [
+                'pe_ratio','pb_ratio','market_cap','revenue','net_income','eps','quarterly_eps','quarterly_revenue',
+                'debt_to_equity','current_ratio','profit_margin','roe','roa',
+                'analyst_buy','analyst_hold','analyst_sell','analyst_strong_buy','analyst_strong_sell','analyst_period',
+                'eps_estimate','revenue_estimate','guidance_period','ticker','company_name','sector','earnings_date']:
+                lines.append(f"{key}: {value}")
+        return "\n".join(lines)
+
     def analyze(self, data: Dict[str, Any]) -> str:
         formatted_data = self._format_data_for_analysis(data)
         

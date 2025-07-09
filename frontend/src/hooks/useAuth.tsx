@@ -25,16 +25,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check for stored token on app load
     const token = localStorage.getItem('token')
+    
     if (token) {
-      // For MVP, we'll just check if token exists
-      // In production, you'd validate the token with the backend
-      setUser({
-        id: 1,
-        email: 'demo@fund.com',
-        fund_name: 'Demo Fund'
-      })
+      // Validate token with backend
+      api.get('/auth/me')
+        .then(response => {
+          setUser(response.data)
+        })
+        .catch((error) => {
+          console.log('Token validation failed, removing token')
+          // Token is invalid, remove it
+          localStorage.removeItem('token')
+          delete api.defaults.headers.common['Authorization']
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    } else {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -45,15 +54,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('token', access_token)
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
       
-      // For MVP, we'll use demo user data
-      setUser({
-        id: 1,
-        email,
-        fund_name: 'Demo Fund'
-      })
+      // Get user data from backend
+      const userResponse = await api.get('/auth/me')
+      setUser(userResponse.data)
       
       toast.success('Login successful!')
     } catch (error) {
+      console.error('Login failed:', error)
       toast.error('Login failed. Please check your credentials.')
       throw error
     }
@@ -67,14 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('token', access_token)
       api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
       
-      setUser({
-        id: 1,
-        email,
-        fund_name
-      })
+      // Get user data from backend
+      const userResponse = await api.get('/auth/me')
+      setUser(userResponse.data)
       
       toast.success('Registration successful!')
     } catch (error) {
+      console.error('Registration failed:', error)
       toast.error('Registration failed. Please try again.')
       throw error
     }

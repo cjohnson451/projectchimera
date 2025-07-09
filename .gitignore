@@ -6,3 +6,16 @@ __pycache__/
 *.pyd
 *.pyw
 *.pyz
+
+# Database files
+*.db
+chimera.db
+backend/chimera.db
+
+# Virtual environments
+venv/
+backend/venv/
+
+# OS files
+.DS_Store
+

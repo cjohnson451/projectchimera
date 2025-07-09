@@ -1,0 +1,8 @@
+.env
+/Users/colejohnson/Developer/Project Chimera/backend/venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz

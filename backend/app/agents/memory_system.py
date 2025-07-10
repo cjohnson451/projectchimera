@@ -181,15 +181,34 @@ class MemoryAgent(BaseAgent):
 class MemorySystem:
     """Advanced memory system for storing and retrieving trading decision insights."""
     
-    def __init__(self, db_path: str = "chimera.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
+        # Use the same database as the main application if no path provided
+        if db_path is None:
+            from app.db import engine
+            # Extract the database path from the engine URL
+            db_url = str(engine.url)
+            if db_url.startswith('sqlite:///'):
+                self.db_path = db_url.replace('sqlite:///', '')
+            else:
+                # For other databases, use a default path
+                self.db_path = "chimera.db"
+        else:
+            self.db_path = db_path
+            
         self.memory_agent = MemoryAgent()
         self.vectorizer = TfidfVectorizer(
             max_features=1000,
             stop_words='english',
             ngram_range=(1, 2)
         )
-        self._initialize_database()
+        
+        # Only initialize database if we have a valid path
+        if self.db_path:
+            try:
+                self._initialize_database()
+            except Exception as e:
+                print(f"Warning: Could not initialize memory database: {e}")
+                self.db_path = None
     
     def _initialize_database(self):
         """Initialize the memory database with required tables."""
@@ -233,6 +252,10 @@ class MemorySystem:
     
     def store_memo(self, memo_data: Dict[str, Any]) -> bool:
         """Store a memo in the memory system."""
+        if not self.db_path:
+            print("Warning: Memory system not initialized - cannot store memo")
+            return False
+            
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -270,6 +293,10 @@ class MemorySystem:
     
     def update_memo_outcome(self, memo_id: str, outcome: str, performance_metrics: Dict[str, Any] = None) -> bool:
         """Update the outcome of a stored memo."""
+        if not self.db_path:
+            print("Warning: Memory system not initialized - cannot update memo outcome")
+            return False
+            
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -295,6 +322,10 @@ class MemorySystem:
     
     def find_similar_memos(self, current_memo: Dict[str, Any], limit: int = 10, min_similarity: float = 0.3) -> List[Dict[str, Any]]:
         """Find similar historical memos using TF-IDF similarity."""
+        if not self.db_path:
+            print("Warning: Memory system not initialized - returning empty similar memos")
+            return []
+            
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -384,6 +415,15 @@ class MemorySystem:
     
     def get_performance_analytics(self, ticker: str = None, time_period: str = "30d") -> Dict[str, Any]:
         """Get performance analytics from memory data."""
+        if not self.db_path:
+            print("Warning: Memory system not initialized - returning empty analytics")
+            return {
+                'total_decisions': 0,
+                'success_rate': 0,
+                'avg_return': 0,
+                'outcome_breakdown': {}
+            }
+            
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -463,6 +503,10 @@ class MemorySystem:
     
     def get_learning_insights(self) -> Dict[str, Any]:
         """Get high-level learning insights from all memory data."""
+        if not self.db_path:
+            print("Warning: Memory system not initialized - returning empty learning insights")
+            return {"message": "Memory system not initialized - no historical data available"}
+            
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()

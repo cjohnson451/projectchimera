@@ -6,11 +6,24 @@ import sqlite3
 import os
 
 def migrate_database():
-    db_path = "chimera.db"
+    # Try multiple possible database paths
+    possible_paths = [
+        "chimera.db",  # Local development from backend directory
+        "backend/chimera.db",  # Deployment from root directory
+        "../chimera.db"  # Fallback
+    ]
     
-    if not os.path.exists(db_path):
-        print(f"Database {db_path} not found. Creating new database...")
-        return
+    db_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            db_path = path
+            break
+    
+    if not db_path:
+        print("Database not found in any expected location. Creating new database at chimera.db...")
+        db_path = "chimera.db"
+    
+    print(f"Using database at: {db_path}")
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()

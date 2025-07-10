@@ -4,12 +4,12 @@ services:
     env: python
     plan: free
     buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.18
       - key: PYTHONPATH
-        value: /opt/render/project/src/backend
+        value: /opt/render/project/src
       - key: OPENAI_API_KEY
         sync: false
       - key: FINNHUB_API_KEY
@@ -17,4 +17,4 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///./chimera.db 
+        value: sqlite:///./backend/chimera.db 

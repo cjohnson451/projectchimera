@@ -1,5 +1,5 @@
 from typing import Dict, Any, List, Optional
-from .base import BaseAgent
+from app.agents.base import BaseAgent
 import json
 import re
 from datetime import datetime
@@ -450,6 +450,6 @@ class AdvancedRiskManager:
     
     def _generate_synthesis(self, prompt: str) -> str:
         """Generate synthesis using the base agent's LLM."""
-        from .base import BaseAgent
+        from app.agents.base import BaseAgent
         temp_agent = BaseAgent("Risk Synthesis Agent")
         return temp_agent._call_llm([temp_agent.get_system_prompt(), prompt]) 

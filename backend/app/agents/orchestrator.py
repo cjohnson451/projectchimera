@@ -3,11 +3,11 @@ from langgraph.graph import StateGraph, END
 import re
 from datetime import datetime
 
-from .fundamental_analyst import FundamentalAnalyst
-from .technical_analyst import TechnicalAnalyst
-from .sentiment_analyst import SentimentAnalyst
-from .chief_strategist import ChiefStrategist
-from .risk_manager import RiskManager
+from app.agents.fundamental_analyst import FundamentalAnalyst
+from app.agents.technical_analyst import TechnicalAnalyst
+from app.agents.sentiment_analyst import SentimentAnalyst
+from app.agents.chief_strategist import ChiefStrategist
+from app.agents.risk_manager import RiskManager
 
 class AgentOrchestrator:
     """Orchestrates the multi-agent analysis workflow using LangGraph."""

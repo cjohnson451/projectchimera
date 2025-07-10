@@ -1,5 +1,5 @@
 from typing import Dict, Any, List
-from .base import BaseAgent
+from app.agents.base import BaseAgent
 import json
 import re
 from langchain.schema import SystemMessage, HumanMessage
@@ -256,6 +256,6 @@ class ResearchTeam:
     def _generate_synthesis(self, prompt: str) -> str:
         """Generate synthesis using the base agent's LLM."""
         # Use the same LLM as other agents
-        from .base import BaseAgent
+        from app.agents.base import BaseAgent
         temp_agent = BaseAgent("Synthesis Agent")
         return temp_agent._call_llm([temp_agent.get_system_prompt(), prompt]) 

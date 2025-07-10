@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 import os
 from dotenv import load_dotenv
 
-from .db import get_db, DBUser
+from app.db import get_db, DBUser
 
 load_dotenv()
 

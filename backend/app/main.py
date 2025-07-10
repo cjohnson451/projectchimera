@@ -8,17 +8,17 @@ import os
 import json
 from dotenv import load_dotenv
 
-from .db import get_db, create_tables, DBUser, DBWatchlist, DBMemo, SessionLocal
-from .models import (
+from app.db import get_db, create_tables, DBUser, DBWatchlist, DBMemo, SessionLocal
+from app.models import (
     UserCreate, UserLogin, Token, WatchlistCreate, MemoResponse, MemoDecision,
     RecommendationType, MemoStatus, MemoryInsights, EnhancedMemoRequest, 
     MemoOutcomeUpdate, AgentConfiguration
 )
-from .agents.orchestrator import AgentOrchestrator
-from .agents.enhanced_orchestrator import EnhancedAgentOrchestrator
-from .services.market_data import MarketDataService
-from .services.usage_tracker import usage_tracker
-from .auth import create_access_token, get_current_user, get_password_hash, verify_password
+from app.agents.orchestrator import AgentOrchestrator
+from app.agents.enhanced_orchestrator import EnhancedAgentOrchestrator
+from app.services.market_data import MarketDataService
+from app.services.usage_tracker import usage_tracker
+from app.auth import create_access_token, get_current_user, get_password_hash, verify_password
 
 load_dotenv()
 

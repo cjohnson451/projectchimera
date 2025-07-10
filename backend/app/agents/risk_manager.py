@@ -1,4 +1,4 @@
-from .base import BaseAgent
+from app.agents.base import BaseAgent
 from typing import Dict, Any
 from langchain.schema import HumanMessage, SystemMessage
 

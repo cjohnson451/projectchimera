@@ -4,14 +4,14 @@ import re
 from datetime import datetime
 import json
 
-from .fundamental_analyst import FundamentalAnalyst
-from .technical_analyst import TechnicalAnalyst
-from .sentiment_analyst import SentimentAnalyst
-from .chief_strategist import ChiefStrategist
-from .risk_manager import RiskManager
-from .research_team import ResearchTeam
-from .advanced_risk_manager import AdvancedRiskManager
-from .memory_system import MemorySystem
+from app.agents.fundamental_analyst import FundamentalAnalyst
+from app.agents.technical_analyst import TechnicalAnalyst
+from app.agents.sentiment_analyst import SentimentAnalyst
+from app.agents.chief_strategist import ChiefStrategist
+from app.agents.risk_manager import RiskManager
+from app.agents.research_team import ResearchTeam
+from app.agents.advanced_risk_manager import AdvancedRiskManager
+from app.agents.memory_system import MemorySystem
 
 class EnhancedAgentOrchestrator:
     """Enhanced orchestrator that integrates all advanced features with the existing agent system."""

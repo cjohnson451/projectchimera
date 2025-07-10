@@ -5,6 +5,7 @@ services:
     plan: free
     buildCommand: cd backend && pip install -r requirements.txt
     startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.18
@@ -17,4 +18,14 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///./backend/chimera.db 
+        value: sqlite:///./backend/chimera.db
+
+  - type: web
+    name: project-chimera-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://projectchimera.onrender.com 

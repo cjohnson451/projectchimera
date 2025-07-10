@@ -94,6 +94,15 @@ market_data_service = MarketDataService()
 async def root():
     return {"message": "Project Chimera API - Enhanced Multi-agent AI Investment Analysis"}
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring."""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "service": "Project Chimera API"
+    }
+
 @app.post("/auth/register", response_model=Token)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user."""

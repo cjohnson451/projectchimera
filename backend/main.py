@@ -8,9 +8,17 @@ import os
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Import the FastAPI app from the app package
-from app.main import app
+try:
+    # Import the FastAPI app from the app package
+    from app.main import app
+except ImportError as e:
+    print(f"Import error: {e}")
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Python path: {sys.path}")
+    print(f"Files in current directory: {os.listdir('.')}")
+    if os.path.exists('app'):
+        print(f"Files in app directory: {os.listdir('app')}")
+    raise
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=10000) 
+# This is the FastAPI app instance that uvicorn will run
+app = app 

@@ -21,4 +21,12 @@ except ImportError as e:
     raise
 
 # This is the FastAPI app instance that uvicorn will run
-app = app 
+app = app
+
+# For debugging - print some info
+print(f"Successfully imported app from {app.__module__}")
+print(f"App title: {app.title}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=10000) 

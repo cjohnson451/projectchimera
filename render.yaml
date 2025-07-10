@@ -3,11 +3,13 @@ services:
     name: project-chimera-backend
     env: python
     plan: free
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.18
+      - key: PYTHONPATH
+        value: /opt/render/project/src/backend
       - key: OPENAI_API_KEY
         sync: false
       - key: FINNHUB_API_KEY

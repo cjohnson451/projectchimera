@@ -1,5 +1,5 @@
-import { ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React, { ReactNode, useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { 
   BarChart3, 
@@ -7,9 +7,27 @@ import {
   FileText, 
   LogOut, 
   Menu,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Bell,
+  Search,
+  Home,
+  TrendingUp,
+  PieChart,
+  Settings,
+  User,
+  HelpCircle,
+  Shield,
+  Activity,
+  Target,
+  BookOpen,
+  Briefcase,
+  ChevronDown,
+  ChevronRight as ChevronRightIcon
 } from 'lucide-react'
-import { useState } from 'react'
+import { clsx } from 'clsx'
+import Button from './ui/Button'
 import { deleteAccount } from '../lib/api'
 import toast from 'react-hot-toast'
 
@@ -17,15 +35,61 @@ interface LayoutProps {
   children: ReactNode
 }
 
+interface NavigationItem {
+  name: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  badge?: number
+  description?: string
+}
+
+interface NavigationSection {
+  name: string
+  items: NavigationItem[]
+  collapsible?: boolean
+}
+
 export default function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [notificationCount, setNotificationCount] = useState(3) // Mock notification count
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
 
-  const navigation = [
-    { name: 'Dashboard', href: '/', icon: BarChart3 },
-    { name: 'Watchlist', href: '/watchlist', icon: List },
-    { name: 'Investment Memos', href: '/memos', icon: FileText },
+  // Navigation structure with sections
+  const navigationSections: NavigationSection[] = [
+    {
+      name: 'Dashboard',
+      items: [
+        { name: 'Overview', href: '/', icon: Home, description: 'Main dashboard overview' },
+        { name: 'Analytics', href: '/analytics', icon: Activity, description: 'Advanced analytics' },
+      ]
+    },
+    {
+      name: 'Analysis',
+      items: [
+        { name: 'Investment Memos', href: '/memos', icon: FileText, badge: 5, description: 'AI-generated investment analysis' },
+        { name: 'Watchlist', href: '/watchlist', icon: List, description: 'Monitored securities' },
+        { name: 'Portfolio', href: '/portfolio', icon: PieChart, description: 'Portfolio management' },
+      ]
+    },
+    {
+      name: 'Tools',
+      items: [
+        { name: 'Reports', href: '/reports', icon: BookOpen, description: 'Generate and manage reports' },
+        { name: 'Risk Assessment', href: '/risk', icon: Shield, description: 'Risk analysis tools' },
+      ]
+    },
+    {
+      name: 'Settings',
+      items: [
+        { name: 'Preferences', href: '/settings', icon: Settings, description: 'User preferences' },
+        { name: 'Account', href: '/account', icon: User, description: 'Account management' },
+      ]
+    }
   ]
 
   return (

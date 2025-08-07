@@ -162,6 +162,29 @@ class AgentOrchestrator:
             return min(max(val / 100, 0), 1)
         return None
     
+    def _validate_memo(self, memo: dict, technical_data: dict) -> (bool, str):
+        """Validate memo for critical data issues and consistency."""
+        # Check for technical data errors
+        if technical_data.get('error'):
+            return False, f"Technical data error: {technical_data.get('error_message', 'Unknown error')}"
+        # Check for static or missing price
+        price = technical_data.get('current_price')
+        if price is None or price == 100.0:
+            return False, f"Invalid or static price detected: {price}"
+        # Check for missing recommendation
+        rec = memo.get('recommendation')
+        if rec not in ["Buy", "Sell", "Hold"]:
+            return False, f"Invalid recommendation: {rec}"
+        # Check for missing critical fields
+        for field in ["fundamental_analysis", "technical_analysis", "sentiment_analysis", "chief_strategist_analysis"]:
+            if not memo.get(field):
+                return False, f"Missing critical field: {field}"
+        # Check for recommendation mismatch in executive summary
+        exec_summary = memo.get('executive_summary', '')
+        if rec and rec.lower() not in exec_summary.lower():
+            return False, f"Recommendation mismatch between executive summary and top-line: {rec} vs {exec_summary}"
+        return True, ""
+    
     def generate_memo(self, ticker: str, fundamental_data: Dict, technical_data: Dict, sentiment_data: Dict) -> Dict[str, Any]:
         """Generate a complete investment memo using all agents, with professional structure."""
         # Initialize state as a dict
@@ -251,6 +274,12 @@ class AgentOrchestrator:
                 'source_citations': source_citations,
                 'status': 'complete',
             }
+            # Validate memo
+            is_valid, error_msg = self._validate_memo(result, technical_data)
+            if not is_valid:
+                print(f"Memo validation failed for {ticker}: {error_msg}")
+                result['status'] = 'error'
+                result['error_message'] = error_msg
             print(f"Generated memo result for {ticker}. Keys: {list(result.keys())}")
             return result
         except Exception as e:

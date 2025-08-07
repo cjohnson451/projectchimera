@@ -91,7 +91,7 @@ class MarketDataService:
                 'eps': None
             }
     
-    def get_technical_data(self, ticker: str) -> Dict[str, Any]:
+    def get_technical_data(self, ticker: str, test_mode: bool = False) -> Dict[str, Any]:
         """Get technical data for a ticker."""
         try:
             # Get daily candles for the last 30 days
@@ -107,22 +107,30 @@ class MarketDataService:
                 )
             except Exception as api_error:
                 print(f"API error fetching technical data for {ticker}: {str(api_error)}")
-                # Return mock data if API fails
-                return {
-                    'ticker': ticker,
-                    'current_price': 100.0,
-                    'price_change': 0.0,
-                    'price_change_pct': 0.0,
-                    'sma_5': 100.0,
-                    'sma_20': 100.0,
-                    'current_volume': 1000000,
-                    'avg_volume': 1000000,
-                    'volume_ratio': 1.0,
-                    'recent_high': 105.0,
-                    'recent_low': 95.0,
-                    'price_vs_sma5': 0.0,
-                    'price_vs_sma20': 0.0
-                }
+                if test_mode:
+                    return {
+                        'ticker': ticker,
+                        'current_price': 100.0,
+                        'price_change': 0.0,
+                        'price_change_pct': 0.0,
+                        'sma_5': 100.0,
+                        'sma_20': 100.0,
+                        'current_volume': 1000000,
+                        'avg_volume': 1000000,
+                        'volume_ratio': 1.0,
+                        'recent_high': 105.0,
+                        'recent_low': 95.0,
+                        'price_vs_sma5': 0.0,
+                        'price_vs_sma20': 0.0,
+                        'error': True,
+                        'error_message': f"API error: {str(api_error)} (using placeholder data in test mode)"
+                    }
+                else:
+                    return {
+                        'ticker': ticker,
+                        'error': True,
+                        'error_message': f"API error fetching technical data: {str(api_error)}"
+                    }
             
             if candles['s'] == 'ok' and len(candles['c']) > 0:
                 # Calculate basic technical indicators
@@ -164,43 +172,24 @@ class MarketDataService:
                     'recent_high': recent_high,
                     'recent_low': recent_low,
                     'price_vs_sma5': ((current_price - sma_5) / sma_5 * 100) if sma_5 > 0 else 0,
-                    'price_vs_sma20': ((current_price - sma_20) / sma_20 * 100) if sma_20 > 0 else 0
+                    'price_vs_sma20': ((current_price - sma_20) / sma_20 * 100) if sma_20 > 0 else 0,
+                    'error': False
                 }
-                
                 return technical_data
             else:
+                print(f"API returned no candle data for {ticker}.")
                 return {
                     'ticker': ticker,
-                    'current_price': None,
-                    'price_change': None,
-                    'price_change_pct': None,
-                    'sma_5': None,
-                    'sma_20': None,
-                    'current_volume': None,
-                    'avg_volume': None,
-                    'volume_ratio': None,
-                    'recent_high': None,
-                    'recent_low': None,
-                    'price_vs_sma5': None,
-                    'price_vs_sma20': None
+                    'error': True,
+                    'error_message': f"No candle data returned from API for {ticker}."
                 }
                 
         except Exception as e:
             print(f"Error fetching technical data for {ticker}: {str(e)}")
             return {
                 'ticker': ticker,
-                'current_price': None,
-                'price_change': None,
-                'price_change_pct': None,
-                'sma_5': None,
-                'sma_20': None,
-                'current_volume': None,
-                'avg_volume': None,
-                'volume_ratio': None,
-                'recent_high': None,
-                'recent_low': None,
-                'price_vs_sma5': None,
-                'price_vs_sma20': None
+                'error': True,
+                'error_message': f"Exception in get_technical_data: {str(e)}"
             }
     
     def get_sentiment_data(self, ticker: str) -> Dict[str, Any]:

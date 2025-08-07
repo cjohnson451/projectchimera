@@ -201,7 +201,7 @@ class MemoryInsights(BaseModel):
 
 class EnhancedMemoRequest(BaseModel):
     """Model for enhanced memo generation requests."""
-    ticker: str
+    ticker: Optional[str] = None  # Optional since it's in the URL path
     enable_memory: bool = True
     enable_research_debate: bool = True
     enable_risk_debate: bool = True

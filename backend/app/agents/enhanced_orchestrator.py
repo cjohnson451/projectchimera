@@ -300,8 +300,34 @@ class EnhancedAgentOrchestrator:
         
         return 0.7  # Default confidence score
     
+    def _validate_memo(self, memo: dict, technical_data: dict) -> (bool, str):
+        """Validate memo for critical data issues and consistency."""
+        # Check for technical data errors
+        if technical_data.get('error'):
+            return False, f"Technical data error: {technical_data.get('error_message', 'Unknown error')}"
+        # Check for static or missing price
+        price = technical_data.get('current_price')
+        if price is None or price == 100.0:
+            return False, f"Invalid or static price detected: {price}"
+        # Check for missing recommendation
+        rec = memo.get('recommendation')
+        if rec not in ["Buy", "Sell", "Hold"]:
+            return False, f"Invalid recommendation: {rec}"
+        # Check for missing critical fields
+        for field in ["fundamental_analysis", "technical_analysis", "sentiment_analysis", "chief_strategist_analysis"]:
+            if not memo.get(field):
+                return False, f"Missing critical field: {field}"
+        # Check for recommendation mismatch in chief_strategist_analysis
+        exec_summary = memo.get('chief_strategist_analysis', '')
+        if rec and rec.lower() not in exec_summary.lower():
+            return False, f"Recommendation mismatch between chief strategist and top-line: {rec} vs {exec_summary}"
+        return True, ""
+    
     def generate_enhanced_memo(self, ticker: str, fundamental_data: Dict, technical_data: Dict, sentiment_data: Dict) -> Dict[str, Any]:
         """Generate an enhanced memo using all advanced features."""
+        
+        print(f"Enhanced orchestrator: Starting memo generation for {ticker}")
+        print(f"Enhanced orchestrator: Options - memory={self.enable_memory}, research={self.enable_research_debate}, risk={self.enable_risk_debate}")
         
         # Prepare initial state
         initial_state = {
@@ -311,9 +337,13 @@ class EnhancedAgentOrchestrator:
             'sentiment_data': sentiment_data
         }
         
+        print(f"Enhanced orchestrator: Initial state prepared with {len(str(initial_state))} chars")
+        
         # Run the enhanced workflow
         try:
+            print("Enhanced orchestrator: Invoking workflow...")
             final_state = self.workflow.invoke(initial_state)
+            print(f"Enhanced orchestrator: Workflow completed. Final state keys: {list(final_state.keys())}")
             
             # Prepare the enhanced memo
             memo = {
@@ -347,11 +377,25 @@ class EnhancedAgentOrchestrator:
                     'risk_category': final_state['risk_category']
                 }
             
+            print("Enhanced orchestrator: Memo prepared, validating...")
+            # Validate memo
+            is_valid, error_msg = self._validate_memo(memo, technical_data)
+            if not is_valid:
+                print(f"Enhanced orchestrator: Memo validation failed: {error_msg}")
+                memo['status'] = 'error'
+                memo['error_message'] = error_msg
+            else:
+                memo['status'] = 'complete'
+                print("Enhanced orchestrator: Memo validation passed")
+            
             return memo
             
         except Exception as e:
-            print(f"Error in enhanced workflow: {e}")
+            print(f"Enhanced orchestrator: Error in enhanced workflow: {e}")
+            import traceback
+            traceback.print_exc()
             # Fallback to basic memo generation
+            print("Enhanced orchestrator: Falling back to basic memo generation")
             return self._generate_basic_memo(ticker, fundamental_data, technical_data, sentiment_data)
     
     def _generate_basic_memo(self, ticker: str, fundamental_data: Dict, technical_data: Dict, sentiment_data: Dict) -> Dict[str, Any]:

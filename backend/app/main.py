@@ -423,6 +423,13 @@ async def generate_memo(
         db_memo.risks_and_mitigation = memo_data.get('risks_and_mitigation', "") or ""
         db_memo.valuation_and_deal_structure = memo_data.get('valuation_and_deal_structure', "") or ""
         db_memo.source_citations = json.dumps(memo_data.get('source_citations', []) or [])
+        # Check memo status
+        if memo_data.get('status') == 'error':
+            db_memo.status = 'error'
+            db_memo.fundamental_analysis = f"Memo generation failed validation: {memo_data.get('error_message', 'Unknown error')}"
+            db.commit()
+            db.refresh(db_memo)
+            return {"error": f"Memo generation failed: {memo_data.get('error_message', 'Unknown error')}", "memo_id": db_memo.id}
         db_memo.status = memo_data.get('status', 'complete') or 'complete'
         db.commit()
         db.refresh(db_memo)
@@ -444,7 +451,10 @@ async def generate_enhanced_memo(
     db: Session = Depends(get_db)
 ):
     """Generate an enhanced memo with advanced features."""
+    print(f"=== ENHANCED MEMO ENDPOINT CALLED === {ticker} ===")
     try:
+        print(f"Starting enhanced memo generation for {ticker} with options: {request}")
+        
         # Set status to pending at creation
         db_memo = DBMemo(
             ticker=ticker.upper(),
@@ -471,23 +481,67 @@ async def generate_enhanced_memo(
         db.add(db_memo)
         db.commit()
         db.refresh(db_memo)
+        print(f"Created DB memo with ID: {db_memo.id}")
+        
         # Get market data
-        fundamental_data = market_data_service.get_fundamental_data(ticker)
-        technical_data = market_data_service.get_technical_data(ticker)
-        sentiment_data = market_data_service.get_sentiment_data(ticker)
-        # Generate memo using enhanced orchestrator
-        memo_data = enhanced_orchestrator.generate_enhanced_memo(ticker, fundamental_data, technical_data, sentiment_data)
+        print(f"Fetching market data for {ticker}")
+        try:
+            fundamental_data = market_data_service.get_fundamental_data(ticker)
+            print(f"Fundamental data fetched: {len(str(fundamental_data))} chars")
+        except Exception as e:
+            print(f"Error fetching fundamental data: {e}")
+            raise
+            
+        try:
+            technical_data = market_data_service.get_technical_data(ticker)
+            print(f"Technical data fetched: {len(str(technical_data))} chars")
+        except Exception as e:
+            print(f"Error fetching technical data: {e}")
+            raise
+            
+        try:
+            sentiment_data = market_data_service.get_sentiment_data(ticker)
+            print(f"Sentiment data fetched: {len(str(sentiment_data))} chars")
+        except Exception as e:
+            print(f"Error fetching sentiment data: {e}")
+            raise
+        
+        # Create enhanced orchestrator with user-provided options
+        print(f"Creating enhanced orchestrator with options: memory={request.enable_memory}, research={request.enable_research_debate}, risk={request.enable_risk_debate}")
+        try:
+            user_enhanced_orchestrator = EnhancedAgentOrchestrator(
+                enable_memory=request.enable_memory,
+                enable_research_debate=request.enable_research_debate,
+                enable_risk_debate=request.enable_risk_debate
+            )
+            print("Enhanced orchestrator created successfully")
+        except Exception as e:
+            print(f"Error creating enhanced orchestrator: {e}")
+            raise
+        
+        # Generate memo using enhanced orchestrator with user options
+        print("Starting enhanced memo generation...")
+        try:
+            memo_data = user_enhanced_orchestrator.generate_enhanced_memo(ticker, fundamental_data, technical_data, sentiment_data)
+            print(f"Enhanced memo generated successfully. Status: {memo_data.get('status')}")
+        except Exception as e:
+            print(f"Error in enhanced memo generation: {e}")
+            import traceback
+            traceback.print_exc()
+            raise
+        
         # Update db_memo with all fields from memo_data
-        db_memo.fundamental_analysis = memo_data.get('financial_analysis', "") or ""
+        print("Updating database with memo data...")
+        db_memo.fundamental_analysis = memo_data.get('fundamental_analysis', "") or ""
         db_memo.technical_analysis = memo_data.get('technical_analysis', "") or ""
         db_memo.sentiment_analysis = memo_data.get('sentiment_analysis', "") or ""
-        db_memo.chief_strategist_analysis = memo_data.get('investment_thesis', "") or ""
-        db_memo.risk_assessment = memo_data.get('risks_and_mitigation', "") or ""
+        db_memo.chief_strategist_analysis = memo_data.get('chief_strategist_analysis', "") or ""
+        db_memo.risk_assessment = memo_data.get('risk_assessment', "") or ""
         # Ensure recommendation is valid
         recommendation = memo_data.get('recommendation', "Hold") or "Hold"
         valid_recommendations = ["Buy", "Sell", "Hold"]
         if recommendation not in valid_recommendations:
-            print(f"Invalid recommendation from orchestrator: '{recommendation}', defaulting to 'Hold'")
+            print(f"Invalid recommendation from enhanced orchestrator: '{recommendation}', defaulting to 'Hold'")
             recommendation = "Hold"
         db_memo.recommendation = recommendation
         db_memo.position_size = memo_data.get('position_size')
@@ -496,18 +550,33 @@ async def generate_enhanced_memo(
         db_memo.business_overview = memo_data.get('business_overview', "") or ""
         db_memo.competitive_analysis = memo_data.get('competitive_analysis', "") or ""
         db_memo.management_team = memo_data.get('management_team', "") or ""
-        db_memo.investment_thesis = memo_data.get('investment_thesis', "") or ""
-        db_memo.risks_and_mitigation = memo_data.get('risks_and_mitigation', "") or ""
+        db_memo.investment_thesis = memo_data.get('chief_strategist_analysis', "") or ""
+        db_memo.risks_and_mitigation = memo_data.get('risk_assessment', "") or ""
         db_memo.valuation_and_deal_structure = memo_data.get('valuation_and_deal_structure', "") or ""
         db_memo.source_citations = json.dumps(memo_data.get('source_citations', []) or [])
+        
+        # Check memo status
+        if memo_data.get('status') == 'error':
+            print(f"Memo validation failed: {memo_data.get('error_message')}")
+            db_memo.status = 'error'
+            db_memo.fundamental_analysis = f"Enhanced memo generation failed validation: {memo_data.get('error_message', 'Unknown error')}"
+            db.commit()
+            db.refresh(db_memo)
+            return {"error": f"Enhanced memo generation failed: {memo_data.get('error_message', 'Unknown error')}", "memo_id": db_memo.id}
+        
         db_memo.status = memo_data.get('status', 'complete') or 'complete'
         db.commit()
         db.refresh(db_memo)
+        print(f"Enhanced memo generation completed successfully for {ticker}")
         return {"message": f"Enhanced memo generated for {ticker.upper()}", "memo_id": db_memo.id}
     except Exception as e:
-        db_memo.status = "error"
-        db_memo.fundamental_analysis = f"Enhanced memo generation failed: {str(e)}"
-        db.commit()
+        print(f"Unexpected error in enhanced memo generation: {e}")
+        import traceback
+        traceback.print_exc()
+        if 'db_memo' in locals():
+            db_memo.status = "error"
+            db_memo.fundamental_analysis = f"Enhanced memo generation failed: {str(e)}"
+            db.commit()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error generating enhanced memo: {str(e)}"

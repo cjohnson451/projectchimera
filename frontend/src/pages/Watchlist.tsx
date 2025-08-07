@@ -3,11 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { X, Plus, Play } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { generateEnhancedMemo } from '../lib/api'
 
 export default function Watchlist() {
   const [newTicker, setNewTicker] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
+  const [enhancedOptions, setEnhancedOptions] = useState({
+    enable_memory: true,
+    enable_research_debate: true,
+    enable_risk_debate: true,
+  })
+  const [showEnhanced, setShowEnhanced] = useState<string | null>(null)
+  const [isEnhancedGenerating, setIsEnhancedGenerating] = useState<string | null>(null)
 
   const { data: watchlist = [] } = useQuery<string[]>({
     queryKey: ['watchlist'],
@@ -77,6 +85,20 @@ export default function Watchlist() {
     }
   }
 
+  const handleEnhancedMemo = async (ticker: string) => {
+    setIsEnhancedGenerating(ticker)
+    try {
+      await generateEnhancedMemo(ticker, enhancedOptions)
+      toast.success(`Enhanced memo generated for ${ticker}`)
+      queryClient.invalidateQueries({ queryKey: ['memos'] })
+      setShowEnhanced(null)
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || 'Failed to generate enhanced memo')
+    } finally {
+      setIsEnhancedGenerating(null)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -139,16 +161,59 @@ export default function Watchlist() {
             {watchlist.map((ticker) => (
               <div
                 key={ticker}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                className="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg border"
               >
-                <span className="font-medium text-gray-900">{ticker}</span>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900">{ticker}</span>
+                  <button
+                    onClick={() => handleRemoveTicker(ticker)}
+                    className="text-gray-400 hover:text-danger-600 transition-colors"
+                    title="Remove from watchlist"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
                 <button
-                  onClick={() => handleRemoveTicker(ticker)}
-                  className="text-gray-400 hover:text-danger-600 transition-colors"
-                  title="Remove from watchlist"
+                  className="btn-secondary text-xs mt-2"
+                  onClick={() => setShowEnhanced(showEnhanced === ticker ? null : ticker)}
                 >
-                  <X className="h-4 w-4" />
+                  {showEnhanced === ticker ? 'Hide Enhanced Options' : 'Enhanced Memo'}
                 </button>
+                {showEnhanced === ticker && (
+                  <div className="mt-2 p-2 border rounded bg-white space-y-2">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={enhancedOptions.enable_memory}
+                        onChange={e => setEnhancedOptions(o => ({ ...o, enable_memory: e.target.checked }))}
+                      />
+                      Memory System
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={enhancedOptions.enable_research_debate}
+                        onChange={e => setEnhancedOptions(o => ({ ...o, enable_research_debate: e.target.checked }))}
+                      />
+                      Research Debate
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={enhancedOptions.enable_risk_debate}
+                        onChange={e => setEnhancedOptions(o => ({ ...o, enable_risk_debate: e.target.checked }))}
+                      />
+                      Risk Debate
+                    </label>
+                    <button
+                      className="btn-primary w-full mt-2"
+                      onClick={() => handleEnhancedMemo(ticker)}
+                      disabled={isEnhancedGenerating === ticker}
+                    >
+                      {isEnhancedGenerating === ticker ? 'Generating...' : 'Generate Enhanced Memo'}
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

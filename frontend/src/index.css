@@ -5,55 +5,528 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    body {
+      @apply bg-white text-black;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
+  /* Button Components */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-md {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  .btn-xl {
+    @apply px-8 py-4 text-lg;
+  }
+
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply btn bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white shadow-sm hover:shadow-md focus:ring-primary-500;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply btn bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-900 border border-gray-300 shadow-sm hover:shadow-md focus:ring-primary-500;
   }
   
   .btn-success {
-    @apply bg-success-600 hover:bg-success-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply btn bg-bull-600 hover:bg-bull-700 active:bg-bull-800 text-white shadow-sm hover:shadow-md focus:ring-bull-500;
   }
   
   .btn-danger {
-    @apply bg-danger-600 hover:bg-danger-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply btn bg-bear-600 hover:bg-bear-700 active:bg-bear-800 text-white shadow-sm hover:shadow-md focus:ring-bear-500;
   }
-  
+
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-gray-100 active:bg-gray-200 text-gray-700 focus:ring-gray-500;
+  }
+
+  .btn-outline {
+    @apply btn bg-transparent hover:bg-primary-50 active:bg-primary-100 text-primary-700 border border-primary-300 focus:ring-primary-500;
+  }
+
+  /* Card Components */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+    @apply bg-white rounded-xl shadow-card border border-gray-200/50 overflow-hidden;
   }
-  
+
+  .card-elevated {
+    @apply card shadow-elevated;
+  }
+
+  .card-financial {
+    @apply card shadow-financial backdrop-blur-sm;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200/50 bg-gray-50/50;
+  }
+
+  .card-body {
+    @apply px-6 py-4;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200/50 bg-gray-50/50;
+  }
+
+  /* Form Components */
+  .form-group {
+    @apply space-y-2;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700;
+  }
+
+  .form-label-required::after {
+    content: ' *';
+    @apply text-bear-500;
+  }
+
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
   }
-  
+
+  .input-field-error {
+    @apply input-field border-bear-300 focus:ring-bear-500 focus:border-transparent;
+  }
+
+  .input-field-success {
+    @apply input-field border-bull-300 focus:ring-bull-500 focus:border-transparent;
+  }
+
+  .form-error {
+    @apply text-sm text-bear-600 mt-1;
+  }
+
+  .form-help {
+    @apply text-sm text-gray-500 mt-1;
+  }
+
+  /* Badge Components */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
+
+  .badge-sm {
+    @apply px-2 py-0.5 text-xs;
+  }
+
+  .badge-md {
+    @apply px-2.5 py-0.5 text-xs;
+  }
+
+  .badge-lg {
+    @apply px-3 py-1 text-sm;
+  }
   
   .badge-success {
-    @apply bg-success-100 text-success-800;
+    @apply badge bg-bull-100 text-bull-800 ring-1 ring-bull-600/20;
   }
   
   .badge-warning {
-    @apply bg-warning-100 text-warning-800;
+    @apply badge bg-neutral-100 text-neutral-800 ring-1 ring-neutral-600/20;
   }
   
   .badge-danger {
-    @apply bg-danger-100 text-danger-800;
+    @apply badge bg-bear-100 text-bear-800 ring-1 ring-bear-600/20;
   }
   
   .badge-neutral {
-    @apply bg-gray-100 text-gray-800;
+    @apply badge bg-gray-100 text-gray-800 ring-1 ring-gray-600/20;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-800 ring-1 ring-primary-600/20;
+  }
+
+  /* Financial Status Badges */
+  .badge-buy {
+    @apply badge bg-bull-100 text-bull-800 ring-1 ring-bull-600/20;
+  }
+
+  .badge-sell {
+    @apply badge bg-bear-100 text-bear-800 ring-1 ring-bear-600/20;
+  }
+
+  .badge-hold {
+    @apply badge bg-neutral-100 text-neutral-800 ring-1 ring-neutral-600/20;
+  }
+
+  .badge-pending {
+    @apply badge bg-gray-100 text-gray-800 ring-1 ring-gray-600/20;
+  }
+
+  .badge-approved {
+    @apply badge bg-bull-100 text-bull-800 ring-1 ring-bull-600/20;
+  }
+
+  .badge-rejected {
+    @apply badge bg-bear-100 text-bear-800 ring-1 ring-bear-600/20;
+  }
+
+  /* Risk Indicator Badges */
+  .badge-risk-low {
+    @apply badge bg-risk-low-100 text-risk-low-800 ring-1 ring-risk-low-600/20;
+  }
+
+  .badge-risk-medium {
+    @apply badge bg-risk-medium-100 text-risk-medium-800 ring-1 ring-risk-medium-600/20;
+  }
+
+  .badge-risk-high {
+    @apply badge bg-risk-high-100 text-risk-high-800 ring-1 ring-risk-high-600/20;
+  }
+
+  /* Table Components */
+  .table {
+    @apply w-full border-collapse;
+  }
+
+  .table-auto {
+    @apply table table-auto;
+  }
+
+  .table-fixed {
+    @apply table table-fixed;
+  }
+
+  .table-header {
+    @apply bg-gray-50 border-b border-gray-200;
+  }
+
+  .table-header-cell {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+
+  .table-row {
+    @apply border-b border-gray-200 hover:bg-gray-50 transition-colors duration-150;
+  }
+
+  .table-row-selected {
+    @apply table-row bg-primary-50 border-primary-200;
+  }
+
+  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  }
+
+  .table-cell-numeric {
+    @apply table-cell text-right font-mono;
+  }
+
+  /* Financial Data Table Styles */
+  .financial-table {
+    @apply table bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200;
+  }
+
+  .financial-positive {
+    @apply text-bull-600 font-medium;
+  }
+
+  .financial-negative {
+    @apply text-bear-600 font-medium;
+  }
+
+  .financial-neutral {
+    @apply text-neutral-600 font-medium;
+  }
+
+  /* Loading Components */
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
+  }
+
+  .loading-spinner-sm {
+    @apply loading-spinner h-4 w-4;
+  }
+
+  .loading-spinner-md {
+    @apply loading-spinner h-6 w-6;
+  }
+
+  .loading-spinner-lg {
+    @apply loading-spinner h-8 w-8;
+  }
+
+  .loading-spinner-xl {
+    @apply loading-spinner h-12 w-12;
+  }
+
+  /* Modal Components */
+  .modal-backdrop {
+    @apply fixed inset-0 bg-gray-500 bg-opacity-75 backdrop-blur-sm transition-opacity;
+  }
+
+  .modal-container {
+    @apply fixed inset-0 z-50 overflow-y-auto;
+  }
+
+  .modal-content {
+    @apply relative bg-white rounded-xl shadow-xl transform transition-all;
+  }
+
+  .modal-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+
+  .modal-body {
+    @apply px-6 py-4;
+  }
+
+  .modal-footer {
+    @apply px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl;
+  }
+
+  /* Navigation Components */
+  .nav-link {
+    @apply flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200;
+  }
+
+  .nav-link-active {
+    @apply nav-link bg-primary-100 text-primary-700 border-r-2 border-primary-600;
+  }
+
+  .nav-link-inactive {
+    @apply nav-link text-gray-600 hover:bg-gray-100 hover:text-gray-900;
+  }
+
+  /* Sidebar Components */
+  .sidebar {
+    @apply bg-white border-r border-gray-200 shadow-sm;
+  }
+
+  .sidebar-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+
+  .sidebar-content {
+    @apply px-3 py-4 space-y-1;
+  }
+
+  .sidebar-section {
+    @apply mb-6;
+  }
+
+  .sidebar-section-title {
+    @apply px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2;
+  }
+
+  /* Chart Container */
+  .chart-container {
+    @apply bg-white rounded-lg p-4 shadow-sm border border-gray-200;
+  }
+
+  .chart-header {
+    @apply flex items-center justify-between mb-4 pb-2 border-b border-gray-200;
+  }
+
+  .chart-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+
+  .chart-subtitle {
+    @apply text-sm text-gray-500;
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    @apply card p-6;
+  }
+
+  .metric-value {
+    @apply text-2xl font-bold text-gray-900;
+  }
+
+  .metric-label {
+    @apply text-sm font-medium text-gray-500 uppercase tracking-wide;
+  }
+
+  .metric-change {
+    @apply text-sm font-medium;
+  }
+
+  .metric-change-positive {
+    @apply metric-change text-bull-600;
+  }
+
+  .metric-change-negative {
+    @apply metric-change text-bear-600;
+  }
+
+  .metric-change-neutral {
+    @apply metric-change text-neutral-600;
+  }
+
+  /* Alert Components */
+  .alert {
+    @apply p-4 rounded-lg border;
+  }
+
+  .alert-info {
+    @apply alert bg-primary-50 border-primary-200 text-primary-800;
+  }
+
+  .alert-success {
+    @apply alert bg-bull-50 border-bull-200 text-bull-800;
+  }
+
+  .alert-warning {
+    @apply alert bg-neutral-50 border-neutral-200 text-neutral-800;
+  }
+
+  .alert-error {
+    @apply alert bg-bear-50 border-bear-200 text-bear-800;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-gray-200;
+  }
+
+  .divider-vertical {
+    @apply border-l border-gray-200;
+  }
+
+  /* Empty State */
+  .empty-state {
+    @apply text-center py-12;
+  }
+
+  .empty-state-icon {
+    @apply mx-auto h-12 w-12 text-gray-400 mb-4;
+  }
+
+  .empty-state-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+  }
+
+  .empty-state-description {
+    @apply text-sm text-gray-500 mb-6;
+  }
+
+  /* Utility Classes */
+  .text-financial-positive {
+    @apply text-bull-600;
+  }
+
+  .text-financial-negative {
+    @apply text-bear-600;
+  }
+
+  .text-financial-neutral {
+    @apply text-neutral-600;
+  }
+
+  .bg-financial-positive {
+    @apply bg-bull-50;
+  }
+
+  .bg-financial-negative {
+    @apply bg-bear-50;
+  }
+
+  .bg-financial-neutral {
+    @apply bg-neutral-50;
+  }
+
+  /* Animation Classes */
+  .animate-fade-in {
+    @apply animate-fade-in;
+  }
+
+  .animate-slide-up {
+    @apply animate-slide-up;
+  }
+
+  .animate-scale-in {
+    @apply animate-scale-in;
+  }
+
+  /* Responsive Typography */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl;
   }
 } 

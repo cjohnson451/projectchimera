@@ -18,6 +18,7 @@ from app.agents.orchestrator import AgentOrchestrator
 from app.agents.enhanced_orchestrator import EnhancedAgentOrchestrator
 from app.services.market_data import MarketDataService
 from app.services.usage_tracker import usage_tracker
+from app.delta_api import router as delta_router
 from app.auth import create_access_token, get_current_user, get_password_hash, verify_password
 
 load_dotenv()
@@ -89,6 +90,9 @@ security = HTTPBearer()
 orchestrator = AgentOrchestrator()
 enhanced_orchestrator = EnhancedAgentOrchestrator()
 market_data_service = MarketDataService()
+
+# Mount delta API (additive)
+app.include_router(delta_router)
 
 @app.get("/")
 async def root():
